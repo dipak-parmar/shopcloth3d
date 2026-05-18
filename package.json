@@ -9,17 +9,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "three": "^0.160.0",
-    "@react-three/fiber": "^8.15.11",
     "@react-three/drei": "^9.89.0",
+    "@react-three/fiber": "^8.15.11",
+    "@react-three/postprocessing": "^2.15.11",
+    "clsx": "^2.0.0",
     "gsap": "^3.12.2",
     "lenis": "^1.0.29",
-    "clsx": "^2.0.0",
+    "postprocessing": "^6.33.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "tailwind-merge": "^2.0.0",
-    "@react-three/postprocessing": "^2.15.11",
-    "postprocessing": "^6.33.3"
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.37",
