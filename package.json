@@ -1,0 +1,9 @@
+{
+  "name": "3d-shop-static",
+  "version": "1.0.0",
+  "description": "Static 3D Immersive shop with dynamic mail serverless function.",
+  "private": true,
+  "dependencies": {
+    "nodemailer": "^6.9.13"
+  }
+}

@@ -926,7 +926,14 @@
             }, undefined, (err) => { if (++loadedCount === modelFiles.length) start(); });
         });
 
+        // Instant preloader disappear: Start experience after exactly 2 seconds maximum
+        setTimeout(start, 2000);
+
+        let started = false;
         function start() {
+            if (started) return;
+            started = true;
+
             const loaderEl = document.getElementById('loader');
             if (loaderEl) {
                 loaderEl.style.opacity = 0;
@@ -976,7 +983,27 @@
             });
 
             function sendEmail(name, email, action) {
-                // Using FormSubmit.co for direct email sending with JSON headers to bypass CORS blocks
+                // First try Vercel Serverless Function
+                fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, action })
+                })
+                .then(res => res.json())
+                .then(resData => {
+                    if (resData.error) {
+                        sendEmailFormSubmit(name, email, action);
+                    }
+                })
+                .catch(() => {
+                    sendEmailFormSubmit(name, email, action);
+                });
+            }
+
+            function sendEmailFormSubmit(name, email, action) {
                 fetch('https://formsubmit.co/ajax/dipakparmar2466@gmail.com', {
                     method: 'POST',
                     headers: {
@@ -990,7 +1017,7 @@
                         _subject: `New Lead: ${name || 'User'} (${action})`,
                         _template: 'table'
                     })
-                }).catch(err => console.warn("FormSubmit requires email activation first. Check your inbox!", err));
+                }).catch(err => console.warn("FormSubmit lead notification requires email activation first. Check your inbox!", err));
             }
 
             function showPopup() {
@@ -1140,6 +1167,9 @@
 
                 // Setup 3D inside popup
                 setupPopup3D(index);
+
+                // Send email notification about product viewed
+                sendProductEmail(data, 'Viewed');
             }
 
             function setupPopup3D(index) {
@@ -1398,6 +1428,93 @@
             animate();
         }
 
+        // Double Backend & Fallback Email helper functions
+        function sendFeedbackEmail(ans) {
+            fetch('/api/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    question: 'DO YOU LOVE THIS EXPERIENCE?',
+                    answer: ans
+                })
+            })
+            .then(res => res.json())
+            .then(resData => {
+                if (resData.error) {
+                    sendFeedbackEmailFormSubmit(ans);
+                }
+            })
+            .catch(() => {
+                sendFeedbackEmailFormSubmit(ans);
+            });
+        }
+
+        function sendFeedbackEmailFormSubmit(ans) {
+            fetch('https://formsubmit.co/ajax/dipakparmar2466@gmail.com', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    question: 'DO YOU LOVE THIS EXPERIENCE?',
+                    answer: ans,
+                    _subject: `Website Feedback: ${ans}`,
+                    _template: 'table'
+                })
+            }).catch(err => console.warn("FormSubmit feedback notification requires email activation.", err));
+        }
+
+        function sendProductEmail(product, actionType) {
+            fetch('/api/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    product: {
+                        name: product.name,
+                        price: product.price,
+                        fabric: product.fabric,
+                        origin: product.origin,
+                        action: actionType
+                    }
+                })
+            })
+            .then(res => res.json())
+            .then(resData => {
+                if (resData.error) {
+                    sendProductEmailFormSubmit(product, actionType);
+                }
+            })
+            .catch(() => {
+                sendProductEmailFormSubmit(product, actionType);
+            });
+        }
+
+        function sendProductEmailFormSubmit(product, actionType) {
+            fetch('https://formsubmit.co/ajax/dipakparmar2466@gmail.com', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    product_name: product.name,
+                    product_price: product.price,
+                    product_fabric: product.fabric,
+                    product_origin: product.origin,
+                    action: actionType,
+                    _subject: `Product Interaction: ${product.name} (${actionType})`,
+                    _template: 'table'
+                })
+            }).catch(err => console.warn("FormSubmit product interaction requires email activation.", err));
+        }
+
         // Feedback Widget Logic
         const feedbackWidget = document.getElementById('feedback-widget');
         const feedbackClose = document.getElementById('feedback-close');
@@ -1416,20 +1533,8 @@
             btn.onclick = () => {
                 const ans = btn.dataset.value;
                 
-                // Send Email via FormSubmit to dipakparmar2466@gmail.com with JSON headers to bypass CORS blocks
-                fetch('https://formsubmit.co/ajax/dipakparmar2466@gmail.com', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        question: 'DO YOU LOVE THIS EXPERIENCE?',
-                        answer: ans,
-                        _subject: `Website Feedback: ${ans}`,
-                        _template: 'table'
-                    })
-                }).catch(err => console.warn("FormSubmit requires email activation first. Check your inbox!", err));
+                // Send feedback through dual backend
+                sendFeedbackEmail(ans);
 
                 // Hide options, show thank you
                 if (feedbackQuestion) feedbackQuestion.style.display = 'none';
@@ -1442,6 +1547,27 @@
                 }, 2500);
             };
         });
+
+        // Acquire/Buy Product Button Event Listener
+        const popupBuyBtn = document.querySelector('.popup-buy-btn');
+        if (popupBuyBtn) {
+            popupBuyBtn.onclick = () => {
+                const title = document.getElementById('popup-title').innerText;
+                const price = document.getElementById('popup-price').innerText;
+                const fabric = document.getElementById('popup-fabric').innerText;
+                const origin = document.getElementById('popup-origin').innerText;
+                
+                const product = {
+                    name: title,
+                    price: price,
+                    fabric: fabric,
+                    origin: origin
+                };
+                
+                sendProductEmail(product, 'Acquire Requested');
+                alert(`ACQUIRE REQUESTED: An acquisition email notification has been triggered for "${title}"!`);
+            };
+        }
 
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
