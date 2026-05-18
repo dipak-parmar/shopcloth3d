@@ -990,7 +990,7 @@
                         _subject: `New Lead: ${name || 'User'} (${action})`,
                         _template: 'table'
                     })
-                });
+                }).catch(err => console.warn("FormSubmit requires email activation first. Check your inbox!", err));
             }
 
             function showPopup() {
@@ -1429,7 +1429,7 @@
                         _subject: `Website Feedback: ${ans}`,
                         _template: 'table'
                     })
-                });
+                }).catch(err => console.warn("FormSubmit requires email activation first. Check your inbox!", err));
 
                 // Hide options, show thank you
                 if (feedbackQuestion) feedbackQuestion.style.display = 'none';
