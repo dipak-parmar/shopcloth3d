@@ -1027,10 +1027,15 @@
             }
 
             const closePopup = () => {
-                const name = document.getElementById('user-name').value;
-                const email = document.getElementById('user-email').value;
+                const name = document.getElementById('user-name').value.trim() || 'Anonymous Visitor';
+                const email = document.getElementById('user-email').value.trim() || 'N/A';
+                
+                // Save user identity in localStorage
+                localStorage.setItem('pixelvault_user_name', name);
+                localStorage.setItem('pixelvault_user_email', email);
+                
                 popup.classList.remove('active');
-                sendEmail(name, email, 'SKIPPED/CLOSED');
+                sendEmail(name, email, 'SKIPPED');
                 soundOn = (preferredSound === 'on');
                 updateSoundUI();
             };
@@ -1042,8 +1047,12 @@
 
             leadForm.onsubmit = (e) => {
                 e.preventDefault();
-                const name = document.getElementById('user-name').value;
-                const email = document.getElementById('user-email').value;
+                const name = document.getElementById('user-name').value.trim();
+                const email = document.getElementById('user-email').value.trim();
+
+                // Save user identity in localStorage
+                localStorage.setItem('pixelvault_user_name', name);
+                localStorage.setItem('pixelvault_user_email', email);
 
                 sendEmail(name, email, 'SUBMITTED');
 
@@ -1430,6 +1439,9 @@
 
         // Double Backend & Fallback Email helper functions
         function sendFeedbackEmail(ans) {
+            const name = localStorage.getItem('pixelvault_user_name') || 'Anonymous Visitor';
+            const email = localStorage.getItem('pixelvault_user_email') || 'N/A';
+            
             fetch('/api/send-email', {
                 method: 'POST',
                 headers: {
@@ -1437,6 +1449,8 @@
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
+                    name: name,
+                    email: email,
                     question: 'DO YOU LOVE THIS EXPERIENCE?',
                     answer: ans
                 })
@@ -1453,6 +1467,9 @@
         }
 
         function sendFeedbackEmailFormSubmit(ans) {
+            const name = localStorage.getItem('pixelvault_user_name') || 'Anonymous Visitor';
+            const email = localStorage.getItem('pixelvault_user_email') || 'N/A';
+            
             fetch('https://formsubmit.co/ajax/dipakparmar2466@gmail.com', {
                 method: 'POST',
                 headers: {
@@ -1460,6 +1477,8 @@
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
+                    name: name,
+                    email: email,
                     question: 'DO YOU LOVE THIS EXPERIENCE?',
                     answer: ans,
                     _subject: `Website Feedback: ${ans}`,
@@ -1469,6 +1488,9 @@
         }
 
         function sendProductEmail(product, actionType) {
+            const name = localStorage.getItem('pixelvault_user_name') || 'Anonymous Visitor';
+            const email = localStorage.getItem('pixelvault_user_email') || 'N/A';
+            
             fetch('/api/send-email', {
                 method: 'POST',
                 headers: {
@@ -1476,6 +1498,8 @@
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
+                    name: name,
+                    email: email,
                     product: {
                         name: product.name,
                         price: product.price,
@@ -1497,6 +1521,9 @@
         }
 
         function sendProductEmailFormSubmit(product, actionType) {
+            const name = localStorage.getItem('pixelvault_user_name') || 'Anonymous Visitor';
+            const email = localStorage.getItem('pixelvault_user_email') || 'N/A';
+            
             fetch('https://formsubmit.co/ajax/dipakparmar2466@gmail.com', {
                 method: 'POST',
                 headers: {
@@ -1504,6 +1531,8 @@
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
+                    name: name,
+                    email: email,
                     product_name: product.name,
                     product_price: product.price,
                     product_fabric: product.fabric,
