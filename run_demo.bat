@@ -1,0 +1,6 @@
+@echo off
+echo ===================================================
+echo 🚀 STARTING 3D SHOWCASE SERVER...
+echo Please wait a few seconds...
+echo ===================================================
+npx -y http-server -p 8080 -c-1 -o demo.html

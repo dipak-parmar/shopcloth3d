@@ -1,0 +1,3 @@
+@echo off
+echo Starting 3D Shop...
+npm install && npm run dev
