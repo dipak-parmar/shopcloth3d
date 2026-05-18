@@ -976,17 +976,20 @@
             });
 
             function sendEmail(name, email, action) {
-                // Using FormSubmit.co for direct email sending
-                const formData = new FormData();
-                formData.append('name', name || 'N/A');
-                formData.append('email', email || 'N/A');
-                formData.append('action', action);
-                formData.append('_subject', `New Lead: ${name || 'User'} (${action})`);
-                formData.append('_template', 'table');
-
+                // Using FormSubmit.co for direct email sending with JSON headers to bypass CORS blocks
                 fetch('https://formsubmit.co/ajax/dipakparmar2466@gmail.com', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name || 'N/A',
+                        email: email || 'N/A',
+                        action: action,
+                        _subject: `New Lead: ${name || 'User'} (${action})`,
+                        _template: 'table'
+                    })
                 });
             }
 
@@ -1413,16 +1416,19 @@
             btn.onclick = () => {
                 const ans = btn.dataset.value;
                 
-                // Send Email via FormSubmit to dipakparmar2466@gmail.com
-                const formData = new FormData();
-                formData.append('question', 'DO YOU LOVE THIS EXPERIENCE?');
-                formData.append('answer', ans);
-                formData.append('_subject', `Website Feedback: ${ans}`);
-                formData.append('_template', 'table');
-
+                // Send Email via FormSubmit to dipakparmar2466@gmail.com with JSON headers to bypass CORS blocks
                 fetch('https://formsubmit.co/ajax/dipakparmar2466@gmail.com', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        question: 'DO YOU LOVE THIS EXPERIENCE?',
+                        answer: ans,
+                        _subject: `Website Feedback: ${ans}`,
+                        _template: 'table'
+                    })
                 });
 
                 // Hide options, show thank you
